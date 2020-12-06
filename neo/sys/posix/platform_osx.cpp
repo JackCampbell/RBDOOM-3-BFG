@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-//#include "../../idlib/precompiled.h"
+#include "../../idlib/precompiled.h"
 #include "../posix/posix_public.h"
 //#include "../sys_local.h"
 
@@ -401,8 +401,8 @@ int clock_gettime( clk_id_t clock, struct timespec* tp )
 {
 	switch( clock )
 	{
-		case CLOCK_MONOTONIC_RAW:
-		case CLOCK_MONOTONIC:
+		case D3_CLOCK_MONOTONIC_RAW:
+		case D3_CLOCK_MONOTONIC:
 		{
 			clock_serv_t clock_ref;
 			mach_timespec_t tm;
@@ -425,7 +425,7 @@ int clock_gettime( clk_id_t clock, struct timespec* tp )
 			break;
 		}
 
-		case CLOCK_REALTIME:
+		case D3_CLOCK_REALTIME:
 		default:
 		{
 			struct timeval now;

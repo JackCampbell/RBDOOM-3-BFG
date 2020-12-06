@@ -767,7 +767,7 @@ struct typeConversion_t
 
 const char* vertexInsert =
 {
-	"#version 450\n"
+	"#version 330\n"
 	"#pragma shader_stage( vertex )\n"
 	"#extension GL_ARB_separate_shader_objects : enable\n"
 	//"#define PC\n"
@@ -782,7 +782,7 @@ const char* vertexInsert =
 
 const char* fragmentInsert =
 {
-	"#version 450\n"
+	"#version 330\n"
 	"#pragma shader_stage( fragment )\n"
 	"#extension GL_ARB_separate_shader_objects : enable\n"
 	//"#define PC\n"

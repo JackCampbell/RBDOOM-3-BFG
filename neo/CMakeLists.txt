@@ -2,63 +2,26 @@ cmake_minimum_required(VERSION 2.8) # Eric: These are rookie numbers, you need t
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
-
-option(FORCE_COLOR_OUTPUT
-		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
-
-option(COMPILE_COMMANDS
-		"Generate compile_commands.json" OFF)
-
-option(USE_MFC_TOOLS
-		"Compile the built-in MFC based tools" OFF)
-		
-option(MONOLITH
-		"Embed game logic into main executable" ON)
-
-option(USE_PRECOMPILED_HEADERS
-		"Use precompiled headers during build" ON)
-		
-option(SDL2
-		"Use SDL2 instead of SDL1.2" ON)
-		
-option(OPENAL
-		"Use OpenAL soft instead of XAudio2" OFF)
-
-option(FFMPEG
-		"Use FMPEG to render Bink videos" ON)
-
-option(BINKDEC
-		"Use included libbinkdec to render Bink videos" OFF)
-		
-option(USE_VULKAN
-		"Use Vulkan instead of OpenGL" OFF)
-
-option(SPIRV_SHADERC
-		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
-
-option(ONATIVE
-		"Optimize for the host CPU" OFF)
-		
-option(WINRT
-		"Build for Windows RT" OFF)
-		
-option(WINDOWS10
-		"Build for Windows 10" OFF)
-		
-option(USE_SYSTEM_ZLIB
-                "Use the system zlib instead of the bundled one" OFF)
-
-option(USE_SYSTEM_LIBPNG
-                "Use the system libpng instead of the bundled one" OFF)
-
-option(USE_SYSTEM_LIBJPEG
-                "Use the system libjpeg instead of the bundled one" OFF)
-
-option(USE_SYSTEM_LIBGLEW
-                "Use the system libglew instead of the bundled one" OFF)
-
-option(USE_SYSTEM_RAPIDJSON
-                "Use the system rapidjson instead of the bundled one" OFF)
+option(FORCE_COLOR_OUTPUT "Always produce ANSI-colored output (GNU/Clang only)." OFF)
+option(COMPILE_COMMANDS "Generate compile_commands.json" OFF)
+option(USE_MFC_TOOLS "Compile the built-in MFC based tools" OFF)
+option(MONOLITH "Embed game logic into main executable" ON)
+option(USE_PRECOMPILED_HEADERS "Use precompiled headers during build" OFF)
+option(SDL2 "Use SDL2 instead of SDL1.2" ON)
+option(OPENAL "Use OpenAL soft instead of XAudio2" OFF)
+option(FFMPEG "Use FMPEG to render Bink videos" OFF)
+option(BINKDEC "Use included libbinkdec to render Bink videos" OFF)
+option(USE_VULKAN "Use Vulkan instead of OpenGL" OFF)
+option(SPIRV_SHADERC "Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
+option(ONATIVE "Optimize for the host CPU" OFF)
+option(WINRT "Build for Windows RT" OFF)
+option(WINDOWS10 "Build for Windows 10" OFF)
+option(USE_SYSTEM_ZLIB "Use the system zlib instead of the bundled one" ON)
+option(USE_SYSTEM_LIBPNG "Use the system libpng instead of the bundled one" ON)
+option(USE_SYSTEM_LIBJPEG "Use the system libjpeg instead of the bundled one" ON)
+option(USE_SYSTEM_LIBGLEW "Use the system libglew instead of the bundled one" OFF)
+option(USE_SYSTEM_RAPIDJSON "Use the system rapidjson instead of the bundled one" OFF)
+option(USE_DOOMCLASSIC OFF)
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
@@ -76,7 +39,7 @@ if(FFMPEG AND BINKDEC)
 	message(FATAL_ERROR "Only one of FFMPEG and BINKDEC (or neither) can be enabled at a time")
 endif()
 
-if(UNIX)
+if(UNIX OR APPLE)
 	set(OPENAL TRUE)
 endif()
 
@@ -120,6 +83,8 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	#add_definitions(-Wall)
 	add_definitions(-Werror=format-security)
 	add_definitions(-Werror=format)
+	add_definitions(-Wno-implicit-exception-spec-mismatch -Wno-expansion-to-defined)
+	add_definitions(-Wno-c++11-narrowing)
 
 	# Compiler check (needs -std=c++11 flag)
 	include(CheckCXXCompilerFlag)
@@ -915,19 +880,21 @@ file(GLOB IMGUI_EDITOR_SOURCES tools/imgui/*.cpp)
 file(GLOB IMGUI_EDITOR_LIGHT_INCLUDES tools/imgui/lighteditor/*.h)
 file(GLOB IMGUI_EDITOR_LIGHT_SOURCES tools/imgui/lighteditor/*.cpp)
 
-file(GLOB DOOMCLASSIC_INCLUDES ../doomclassic/doom/*.h)
-file(GLOB DOOMCLASSIC_SOURCES ../doomclassic/doom/*.cpp)
+if(USE_DOOMCLASSIC)
+	file(GLOB DOOMCLASSIC_INCLUDES ../doomclassic/doom/*.h)
+	file(GLOB DOOMCLASSIC_SOURCES ../doomclassic/doom/*.cpp)
 
-set(DOOMCLASSIC_STUBAUDIO_SOURCES ../doomclassic/doom/i_sound_stub.cpp)
-set(DOOMCLASSIC_OPENAL_SOURCES ../doomclassic/doom/i_sound_openal.cpp)
-set(DOOMCLASSIC_XAUDIO2_SOURCES ../doomclassic/doom/i_sound_win32.cpp)
+	set(DOOMCLASSIC_STUBAUDIO_SOURCES ../doomclassic/doom/i_sound_stub.cpp)
+	set(DOOMCLASSIC_OPENAL_SOURCES ../doomclassic/doom/i_sound_openal.cpp)
+	set(DOOMCLASSIC_XAUDIO2_SOURCES ../doomclassic/doom/i_sound_win32.cpp)
 
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_openal.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
+	list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
+	list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_openal.cpp)
+	list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 
-file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
-file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
+	file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
+	file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
+endif()
 
 file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 #file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
@@ -1134,16 +1101,17 @@ source_group("swf" FILES ${SWF_SOURCES})
 source_group("sys" FILES ${SYS_INCLUDES})
 source_group("sys" FILES ${SYS_SOURCES})
 
-source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
-source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
-
-source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
-source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
-source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
-
-source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
-source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
-
+if(USE_DOOMCLASSIC)
+	source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
+	source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
+	
+	source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
+	source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
+	source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
+	
+	source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
+	source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
+endif()
 
 source_group("game-d3xp" FILES ${GAMED3XP_INCLUDES})
 source_group("game-d3xp" FILES ${GAMED3XP_SOURCES})
@@ -1325,7 +1293,9 @@ set(RBDOOM3_SOURCES
 			${IMGUI_EDITOR_LIGHT_SOURCES}
 			)
 
-add_definitions(-DUSE_DOOMCLASSIC)
+if(USE_DOOMCLASSIC)
+	add_definitions(-DUSE_DOOMCLASSIC)
+endif()
 
 add_definitions(-D__DOOM__
 				#-DBUILD_FREETYPE
@@ -1579,8 +1549,12 @@ else()
 	
 	find_package(OpenGL REQUIRED)
 	include_directories(${OPENGL_INCLUDE_DIRS})
-
+	
 	if(UNIX)
+		if(APPLE)
+			include_directories(/usr/local/include)
+			link_libraries(/usr/local/lib)
+		endif()
 		if(FFMPEG)
 			find_package(FFMPEG REQUIRED)
 			add_definitions(-DUSE_FFMPEG)
@@ -1610,7 +1584,13 @@ else()
 			${SDL_INCLUDES} ${SDL_SOURCES})
 			
 		if(OPENAL)
-			find_package(OpenAL REQUIRED)
+			if(APPLE)
+				#find_package(openal-soft REQUIRED)
+				set(OPENAL_INCLUDES /usr/local/opt/openal-soft/include)
+				set(OPENAL_LIBRARY /usr/local/opt/openal-soft/lib/libopenal.dylib)
+			elseif(UNIX)
+				find_package(OpenAL REQUIRED)
+			endif()
 			add_definitions(-DUSE_OPENAL)
 
 			#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/include)

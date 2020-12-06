@@ -197,12 +197,12 @@ void idSoundHardware_OpenAL::Init()
 	//channelMask = deviceDetails.OutputFormat.dwChannelMask;
 
 	//idSoundVoice::InitSurround( outputChannels, channelMask );
-
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Initialize the Doom classic sound system.
 	// ---------------------
 	I_InitSoundHardware( voices.Max(), 0 );
-
+#endif
 	// ---------------------
 	// Create VU Meter Effect
 	// ---------------------
@@ -280,10 +280,12 @@ void idSoundHardware_OpenAL::Shutdown()
 	freeVoices.Clear();
 	zombieVoices.Clear();
 
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Shutdown the Doom classic sound system.
 	// ---------------------
 	I_ShutdownSoundHardware();
+#endif
 
 	alcMakeContextCurrent( NULL );
 

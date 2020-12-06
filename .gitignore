@@ -40,3 +40,6 @@ neo/.kdev4
 neo/neo.kdev4
 neo/.idea/
 neo/cmake-build-*/
+.DS_Store
+neo/.DS_Store
+
